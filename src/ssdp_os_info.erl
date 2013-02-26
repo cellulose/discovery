@@ -1,7 +1,7 @@
 %% Author: ua
 %% Created: Jan 17, 2010
 %% Description: TODO: Add description to os_info
--module(em_os_info).
+-module(ssdp_os_info).
 
 %%
 %% Include files
@@ -30,11 +30,11 @@ get_os() ->
 
 get_os({Osfamily, Osname}) ->
 	case Osname of
-		darwin -> case check_if_sw_vers_avaible() of
-					  true -> mac;
-					  false -> Osfamily
-				  end;
-		_ -> Osfamily
+	    darwin -> case check_if_sw_vers_avaible() of
+				      true -> mac;
+				      false -> Osfamily
+			      end;
+	    _ -> Osfamily
 	end.
 
 check_if_sw_vers_avaible() ->

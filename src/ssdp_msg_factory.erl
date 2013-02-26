@@ -56,7 +56,7 @@ build_msearch_response(ST, URI, Service_Type) ->
 			"USN:uuid:" , root_device:get_uuid() ++ "::" ++ Service_Type, ?CRLF,
 			"Content-Length: 0" ,?CRLF, ?CRLF
 			],
-	% error_logger:info_msg("~p~n", [lists:append(List)]),
+	error_logger:info_msg("MSEARCH RESPONSE: ~p~n", [lists:append(List)]),
 	lists:append(List).
 
 

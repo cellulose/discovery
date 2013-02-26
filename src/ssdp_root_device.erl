@@ -1,6 +1,6 @@
 %% Author: ua
 %% Created: Apr 20, 2010
-%% Description: TODO: Add description to em_root_device
+%% Description: TODO: Add description to ssdp_root_device
 
 -module(ssdp_root_device).
 
@@ -166,7 +166,7 @@ get_ip(#rootdevice{ip = Ip})->
 	Ip.
 
 get_ip_as_string(#rootdevice{ip = Ip}) ->
-	em_os_info:get_ip_as_string(Ip).
+	ssdp_os_info:get_ip_as_string(Ip).
 
 get_port(#rootdevice{port = Port}) ->
 	Port.
@@ -187,7 +187,7 @@ get_os_info(#rootdevice{os = Os}) ->
 	Os.
 
 get_ip_port(#rootdevice{ip = Ip, port = Port}) ->
-	em_os_info:get_ip_as_string(Ip) ++ ":" ++ integer_to_list(Port).
+	ssdp_os_info:get_ip_as_string(Ip) ++ ":" ++ integer_to_list(Port).
 
 get_service(Services, ST) ->
 	error_logger:info_msg("get_service ~p : in : ~p~n", [ST, Services]),
@@ -197,7 +197,7 @@ get_service(Services, ST) ->
 	end.
 
 createRootdevice() ->
-	#rootdevice{uuid=em_util:v4_as_string(), os=em_os_info:get_os_description(),
-				ip=em_os_info:get_active_ip(), port=em_config:get_value(port),
-				services=em_config:get_value(services)}.	
+	#rootdevice{uuid=ssdp_util:v4_as_string(), os=ssdp_os_info:get_os_description(),
+				ip=ssdp_os_info:get_active_ip(), port=nemo_config:get_value(port),
+				services=nemo_config:get_value(services)}.	
 				
