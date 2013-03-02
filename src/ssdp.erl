@@ -142,7 +142,7 @@ is_msearch(Message) -> ssdp_util:startsWith(Message, ?M_SEARCH).
 is_notify(Message) ->  ssdp_util:startsWith(Message, ?NOTIFY).
 
 handle_notify(Ip, Message, State) ->
-	error_logger:info_msg("~n~nNOTIFY From IP: ~p~n Message: ~p~n", [Ip, Message]),
+	%error_logger:info_msg("~n~nNOTIFY From IP: ~p~n Message: ~p~n", [Ip, Message]),
 	ets:insert(ssdp_discovered, notify_message_to_struct_prop(Ip, Message)),
 	{ok, State}.
 
