@@ -1,7 +1,3 @@
-%% Author: ua
-%% Created: Apr 20, 2010
-%% Description: TODO: Add description to ssdp_root_device
-
 -module(ssdp_root_device).
 
 -behaviour(gen_server).
@@ -198,6 +194,6 @@ get_service(Services, ST) ->
 
 createRootdevice() ->
 	#rootdevice{uuid=ssdp_util:v4_as_string(), os=ssdp_os_info:get_os_description(),
-				ip=ssdp_os_info:get_active_ip(), port=nemo_config:get_value(port),
-				services=nemo_config:get_value(services)}.	
+				ip=ssdp_os_info:get_active_ip(), port=80,
+				services=[ssdp_root_device]}.	
 				

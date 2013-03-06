@@ -30,7 +30,6 @@
 %% ====================================================================
 
 start_all() ->
-    nemo_config:start(),
     ssdp_root_device:start(),
     start().
 
@@ -56,7 +55,7 @@ start_link() ->
 %% --------------------------------------------------------------------
 
 init([]) ->
-	error_logger:info_msg("starting SSDP"),
+    error_logger:info_msg("starting SSDP"),
     Socket = open_multicast_socket(),
     start_timer(),
 	ets:new(ssdp_discovered, [set, named_table, public]),
