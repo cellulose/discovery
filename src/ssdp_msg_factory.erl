@@ -26,9 +26,9 @@ build_is_alive(NT, Uri) ->
 			"NT: ", NT, ?CRLF,
 			"NTS: ssdp:alive ", ?CRLF, 
 			"LOCATION: http://", ssdp_root_device:get_ip_port(), Uri, ?CRLF,
-			"USN : advertisement " , ssdp_root_device:get_uuid(), ?CRLF,
+			"USN: uuid", ssdp_root_device:get_uuid(), ?CRLF,
 			"CACHE-CONTROL: max-age=1800", ?CRLF,
-			"Server : ", ssdp_root_device:get_os(), ?CRLF
+			"Server: ", ssdp_root_device:get_os(), ?CRLF
 			],
 	% error_logger:info_msg("~p~n", [lists:append(List)]),
 	lists:append(List).
@@ -39,26 +39,25 @@ build_bye_bye(NT) ->
 			"HOST: ", ?UPNP_HOST_PORT, ?CRLF,
 			"NT: ", NT, ?CRLF,
 			"NTS: ssdp:byebye", ?CRLF, 
-			"USN : uuid:advertisement " , ssdp_root_device:get_uuid(), ?CRLF
+			"USN: uuid", ssdp_root_device:get_uuid(), ?CRLF
 			],
 	% error_logger:info_msg("~p~n", [lists:append(List)]),
 	lists:append(List).
 
-build_msearch_response(ST, URI, Service_Type) ->
+build_msearch_response(ST, Uri, Service_Type) ->
 	List = [
 			"HTTP/1.1 200 OK", ?CRLF,
 			"CACHE-CONTROL: max-age = 1200", ?CRLF,
 			"DATE: ", get_date(), ?CRLF,
 			"EXT:", ?CRLF,
-			"LOCATION: http://", root_device:get_ip_port(), URI,?CRLF,
+			"LOCATION: http://", root_device:get_ip_port(), Uri,?CRLF,
 			"SERVER: ", root_device:get_os(), ?CRLF,
 			"ST: " , ST, ?CRLF,
-			"USN:uuid:" , root_device:get_uuid() ++ "::" ++ Service_Type, ?CRLF,
+			"USN: uuid:", root_device:get_uuid() ++ "::" ++ Service_Type, ?CRLF,
 			"Content-Length: 0" ,?CRLF, ?CRLF
 			],
-	error_logger:info_msg("MSEARCH RESPONSE: ~p~n", [lists:append(List)]),
+	%error_logger:info_msg("MSEARCH RESPONSE: ~p~n", [lists:append(List)]),
 	lists:append(List).
-
 
 get_date() ->
 	httpd_util:rfc1123_date(erlang:localtime()).

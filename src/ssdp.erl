@@ -94,12 +94,13 @@ handle_cast(_Msg, State) ->
 %% --------------------------------------------------------------------
 
 handle_info({udp, _Socket, IPtuple, InPortNo, Packet}, State) ->
-	error_logger:info_msg("~n~nFrom IP: ~p~nPort: ~p~nData: ~p~n", [IPtuple, InPortNo, Packet]),
+	%error_logger:info_msg("~n~nFrom IP: ~p~nPort: ~p~nData: ~p~n", [IPtuple, InPortNo, Packet]),
 	{ok, NewState} = case is_msearch(Packet) of
 		true -> handle_msearch(IPtuple, InPortNo, Packet, State);
 		false -> case is_notify(Packet) of
 			true -> handle_notify(IPtuple, Packet, State);
-			false -> pass %% error_logger:info_msg("I don't understand the Message : ~p~n", [Packet]);
+			false -> {ok, State}  % not notify, not msearch or notify
+			 %% error_logger:info_msg("I don't understand the Message : ~p~n", [Packet]);
 		end		
 	end,		
 	{noreply, NewState};
@@ -151,23 +152,24 @@ discovered() -> ets:tab2list(ssdp_discovered).
 discovered(Key) -> ets:lookup(ssdp_discovered, Key).
 
 handle_msearch(Ip, InPort, InMessage, State) ->
-	error_logger:info_msg("~n~nM-SEARCH From IP: ~p~nPort: ~p~nMessage: ~p~n", [Ip, InPort, InMessage]),
+	%error_logger:info_msg("~n~nM-SEARCH From IP: ~p~nPort: ~p~nMessage: ~p~n", [Ip, InPort, InMessage]),
 	ST = get_st(InMessage),
 	case ssdp_root_device:get_service(ST) of
 		{ok, Service} -> send_msearch_response(Ip, InPort, ST, Service, State);
-		{error, _Reason} -> error_logger:info_msg("This type is not available : ~p~n", [ST])
+		{error, _Reason} -> pass
+		%error_logger:info_msg("This type is not available : ~p~n", [ST])
 	end,
 	{ok, State}.
 
 send_msearch_response(Ip, InPort, ST, Service, State) ->
-	error_logger:info_msg("send msearch response ~n"),
+	%error_logger:info_msg("send msearch response ~n"),
 	Message = ssdp_msg_factory:build_msearch_response(ST, Service:get_uri(), Service:get_service_type()),	
 	gen_udp:send(State#state.socket, Ip, InPort, erlang:list_to_binary(Message)),
 	ok.
 
 get_st(Message) ->
 	[ST] = [string:strip(string:sub_string(X, 4)) || X <- string:tokens(Message, "\r\n"), ssdp_util:startsWith(X, "ST")],
-	error_logger:info_msg("found ST in message : ~p~n", [ST]),
+	%error_logger:info_msg("found ST in message : ~p~n", [ST]),
 	ST.
 
 % get_time() ->

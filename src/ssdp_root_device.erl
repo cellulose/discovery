@@ -87,7 +87,7 @@ get_st() ->
 get_service_type() ->
 	"upnp:rootdevice".
 get_uri() ->
-	"/description/fetch".
+	"/nemo/services".
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
