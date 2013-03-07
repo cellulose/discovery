@@ -16,7 +16,7 @@
 -include("../include/upnp.hrl").
 -export([start_all/0]).
 
--export([discovered/0, discovered/1, tokenize/1, test_notify_msg/0, notify_message_to_struct_prop/2]).
+-export([tokenize/1, test_notify_msg/0]).
 
 %% gen_server callbacks
 
@@ -25,72 +25,23 @@
 -define(M_SEARCH, "M-SEARCH").
 -define(NOTIFY, "NOTIFY").
 
-%% ====================================================================
-%% External functions
-%% ====================================================================
-
 start_all() ->
     ssdp_root_device:start(),
     start().
 
-%% ====================================================================
-%% Server functions
-%% ====================================================================
-%%--------------------------------------------------------------------
-%% Function: start_link() -> {ok,Pid} | ignore | {error,Error}
-%% Description: Starts the server
-%%--------------------------------------------------------------------
-start() ->
-	start_link().
+start() ->	start_link().
 
 start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-%% --------------------------------------------------------------------
-%% Function: init/1
-%% Description: Initiates the server
-%% Returns: {ok, State}          |
-%%          {ok, State, Timeout} |
-%%          ignore               |
-%%          {stop, Reason}
-%% --------------------------------------------------------------------
 
 init([]) ->
     error_logger:info_msg("starting SSDP"),
     Socket = open_multicast_socket(),
     start_timer(),
-	ets:new(ssdp_discovered, [set, named_table, public]),
     {ok, #state{socket=Socket}}.
 
-%% --------------------------------------------------------------------
-%% Function: handle_call/3
-%% Description: Handling call messages
-%% Returns: {reply, Reply, State}          |
-%%          {reply, Reply, State, Timeout} |
-%%          {noreply, State}               |
-%%          {noreply, State, Timeout}      |
-%%          {stop, Reason, Reply, State}   | (terminate/2 is called)
-%%          {stop, Reason, State}            (terminate/2 is called)
-%% --------------------------------------------------------------------
-handle_call(_Request, _From, State) ->
-    {reply, ok, State}.
-
-%% --------------------------------------------------------------------
-%% Function: handle_cast/2
-%% Description: Handling cast messages
-%% Returns: {noreply, State}          |
-%%          {noreply, State, Timeout} |
-%%          {stop, Reason, State}            (terminate/2 is called)
-%% --------------------------------------------------------------------
-handle_cast(_Msg, State) ->
-    {noreply, State}. 
-	
-%% --------------------------------------------------------------------
-%% Function: handle_info/2
-%% Description: Handling all non call/cast messages
-%% Returns: {noreply, State}          |
-%%          {noreply, State, Timeout} |
-%%          {stop, Reason, State}            (terminate/2 is called)
-%% --------------------------------------------------------------------
+handle_call(_Request, _From, State) -> {reply, ok, State}.
+handle_cast(_Msg, State) -> {noreply, State}. 
 
 handle_info({udp, _Socket, IPtuple, InPortNo, Packet}, State) ->
 	%error_logger:info_msg("~n~nFrom IP: ~p~nPort: ~p~nData: ~p~n", [IPtuple, InPortNo, Packet]),
@@ -109,26 +60,15 @@ handle_info(timeout, State) ->
     start_timer(),
     {noreply, State}.
 	
-%% --------------------------------------------------------------------
-%% Function: terminate/2
-%% Description: Shutdown the server
-%% Returns: any (ignored by gen_server)
-%% --------------------------------------------------------------------
 terminate(Reason, State) ->
 	error_logger:info_msg("stopping ssdp with Reason : ", [Reason]),
 	[send_byebye(State#state.socket, get_message_byebye(X)) || X <- ssdp_root_device:get_services()],
 	close(State#state.socket),
     ok.
-%% --------------------------------------------------------------------
-%% Func: code_change/3
-%% Purpose: Convert process state when code is changed
-%% Returns: {ok, NewState}
-%% --------------------------------------------------------------------
+
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-%% --------------------------------------------------------------------
-%%% Internal functions
-%% --------------------------------------------------------------------
+
 close(Socket) -> 
 	gen_udp:close(Socket).
 
@@ -141,14 +81,11 @@ is_msearch(Message) -> ssdp_util:startsWith(Message, ?M_SEARCH).
 
 is_notify(Message) ->  ssdp_util:startsWith(Message, ?NOTIFY).
 
-handle_notify(Ip, Message, State) ->
+handle_notify(IP, Message, State) ->
 	%error_logger:info_msg("~n~nNOTIFY From IP: ~p~n Message: ~p~n", [Ip, Message]),
-	ets:insert(ssdp_discovered, notify_message_to_struct_prop(Ip, Message)),
+	NotifyTree = notify_msg_to_update_tree(IP, Message),
+	hub:update([ssdp,alive], NotifyTree, []),
 	{ok, State}.
-
-discovered() -> ets:tab2list(ssdp_discovered).
-
-discovered(Key) -> ets:lookup(ssdp_discovered, Key).
 
 handle_msearch(Ip, InPort, InMessage, State) ->
 	%error_logger:info_msg("~n~nM-SEARCH From IP: ~p~nPort: ~p~nMessage: ~p~n", [Ip, InPort, InMessage]),
@@ -172,8 +109,7 @@ get_st(Message) ->
 	ST.
 
 % get_time() ->
-%	{ok, Timer} = application:get_env(?ERLMEDIASERVER_APP_FILE, timer),
-%	Timer.	
+%	{ok, Timer} = application:get_env(?ERLMEDIASERVER_APP_FILE, timer),	Timer.	
 
 tokenize(Message) ->
 	string:tokens(Message, "\r\n").
@@ -233,10 +169,10 @@ lines_to_props(Lines) ->
 	proplists:delete(nil, RawProplist).
 
 %% returns a tuple/structure for a notify message, suitable for passing
-%% to a json renderer like mochijson2, or storing somewhere
-notify_message_to_struct_prop(IP, Message) ->	
+%% to hub:update
+notify_msg_to_update_tree(IP, Message) ->	
 	Lines = text_to_lines(Message),
 	Pl1 = lines_to_props(tl(Lines)),
-	Pl2 = lists:append(Pl1, [{ip,erlang:list_to_binary(inet_parse:ntoa(IP))}]),
+	Pl2 = lists:append(Pl1, [{ip, erlang:list_to_binary(inet_parse:ntoa(IP))}]),
 	Usn = proplists:get_value(usn, Pl2),
-	{Usn, {struct, Pl2}}.
+	[{Usn, Pl2}].

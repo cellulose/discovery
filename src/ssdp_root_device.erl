@@ -136,7 +136,7 @@ handle_cast(_Msg, State) ->
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
 handle_info(Info, State) ->
-	error_logger:info_report("Info : ~n~p : ", [Info]),
+	% error_logger:info_report("Info : ~n~p : ", [Info]),
     {noreply, State}.
 
 %% --------------------------------------------------------------------
@@ -186,7 +186,7 @@ get_ip_port(#rootdevice{ip = Ip, port = Port}) ->
 	ssdp_os_info:get_ip_as_string(Ip) ++ ":" ++ integer_to_list(Port).
 
 get_service(Services, ST) ->
-	error_logger:info_msg("get_service ~p : in : ~p~n", [ST, Services]),
+	% error_logger:info_msg("get_service ~p : in : ~p~n", [ST, Services]),
 	case [X || X <- Services, string:equal(ST, X:get_st())] of
 		[] -> {error, "no service found"};
 		[Service] -> {ok, Service}
