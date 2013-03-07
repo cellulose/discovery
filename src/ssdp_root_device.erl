@@ -135,7 +135,7 @@ handle_cast(_Msg, State) ->
 %%          {noreply, State, Timeout} |
 %%          {stop, Reason, State}            (terminate/2 is called)
 %% --------------------------------------------------------------------
-handle_info(Info, State) ->
+handle_info(_Info, State) ->
 	% error_logger:info_report("Info : ~n~p : ", [Info]),
     {noreply, State}.
 
