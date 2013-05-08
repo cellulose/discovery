@@ -45,13 +45,12 @@ build_bye_bye(NT) ->
     lists:append(List).
 
 build_msearch_response(ST, Uri, Service_Type) ->
-    List = [
-            "HTTP/1.1 200 OK", ?CRLF,
+    List = ["HTTP/1.1 200 OK", ?CRLF,
             "CACHE-CONTROL: max-age = 1200", ?CRLF,
             "DATE: ", get_date(), ?CRLF,
             "EXT:", ?CRLF,
             "LOCATION: http://", ssdp_root_device:get_ip_port(), Uri,?CRLF,
-            "SERVER: ", root_device:get_os(), ?CRLF,
+            "SERVER: ", ssdp_root_device:get_os(), ?CRLF,
             "ST: " , ST, ?CRLF,
             "USN: uuid:", ssdp_root_device:get_uuid() ++ "::" ++ Service_Type, ?CRLF,
             "Content-Length: 0" ,?CRLF, ?CRLF
