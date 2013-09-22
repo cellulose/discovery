@@ -83,7 +83,7 @@ get_st() ->
 get_service_type() ->
 	"upnp:rootdevice".
 get_uri() ->
-	"/nemo/services".
+	"/upnp/device.xml".
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
