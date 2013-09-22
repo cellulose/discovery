@@ -81,7 +81,8 @@ get_nt() ->
 get_st() ->
 	get_nt().
 get_service_type() ->
-    "urn:schemas-upnp-org:device:InternetGatewayDevice:1".
+%%  "urn:schemas-upnp-org:device:InternetGatewayDevice:1".
+    "urn:schemas-upnp-org:device:Basic:1".
 %%	"upnp:rootdevice".
     
 get_uri() ->
