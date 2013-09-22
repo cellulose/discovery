@@ -194,6 +194,6 @@ get_service(Services, ST) ->
 
 createRootdevice() ->
 	#rootdevice{uuid=ssdp_util:v4_as_string(), os=ssdp_os_info:get_os_description(),
-				ip=ssdp_os_info:get_active_ip(), port=80,
+				ip=ssdp_os_info:get_active_ip(), port=8080,
 				services=[ssdp_root_device]}.	
 				
