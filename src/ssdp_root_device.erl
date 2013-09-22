@@ -77,7 +77,8 @@ get_os_info() ->
 get_ip_port() ->
 	gen_server:call(?MODULE, {get_ip_port}).
 get_nt() ->
-	?UPNP_ROOTDEVICE.
+    "urn:schemas-upnp-org:device:Basic:1".
+%%	?UPNP_ROOTDEVICE.
 get_st() ->
 	get_nt().
 get_service_type() ->
