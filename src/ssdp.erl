@@ -35,7 +35,7 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init([]) ->
-    error_logger:info_msg("starting SSDP"),
+    error_logger:info_msg("Starting SSDP"),
     Socket = open_multicast_socket(),
     start_timer(),
     {ok, #state{socket=Socket}}.
