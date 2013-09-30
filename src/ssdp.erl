@@ -152,7 +152,7 @@ line_to_prop(Line) ->
     L = re:split(Line, "\\W*:\\W*", [{parts, 2}, {return, list}]),
     case length(L) of
         2 -> { to_lowercase_atom(hd(L)), erlang:list_to_binary(tl(L))    };
-        true -> nil
+        _ -> nil
     end.
 
 to_lowercase_atom(Str) ->
