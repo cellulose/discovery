@@ -28,7 +28,7 @@ build_is_alive(NT, Uri) ->
             "LOCATION: http://", ssdp_root_device:get_ip_port(), Uri, ?CRLF,
             "USN: uuid:", ssdp_root_device:get_uuid(), ?CRLF,
             "CACHE-CONTROL: max-age=1800", ?CRLF,
-            "SERVER: NEMO", ?CRLF
+            "SERVER: NEMO", ?CRLF, ?CRLF
             ],
     % error_logger:info_msg("~p~n", [lists:append(List)]),
     lists:append(List).
