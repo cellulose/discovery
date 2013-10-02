@@ -24,11 +24,11 @@ build_is_alive(NT, Uri) ->
     List = ["NOTIFY * HTTP/1.1", ?CRLF,
             "HOST: ", ?UPNP_HOST_PORT, ?CRLF,
             "NT: ", NT, ?CRLF,
-            "NTS: ssdp:alive ", ?CRLF, 
+            "NTS: ssdp:alive", ?CRLF, 
             "LOCATION: http://", ssdp_root_device:get_ip_port(), Uri, ?CRLF,
             "USN: uuid:", ssdp_root_device:get_uuid(), ?CRLF,
             "CACHE-CONTROL: max-age=1800", ?CRLF,
-            "SERVER: NEMO", ?CRLF
+            "SERVER: NEMO", ?CRLF, ?CRLF
             ],
     % error_logger:info_msg("~p~n", [lists:append(List)]),
     lists:append(List).
