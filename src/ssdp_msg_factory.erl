@@ -50,10 +50,10 @@ build_msearch_response(ST, Uri, Service_Type) ->
             "DATE: ", get_date(), ?CRLF,
             "EXT:", ?CRLF,
             "LOCATION: http://", ssdp_root_device:get_ip_port(), Uri,?CRLF,
-            "SERVER: NEMO", ?CRLF,
             "ST: " , ST, ?CRLF,
-            "USN: uuid:", ssdp_root_device:get_uuid() ++ "::" ++ Service_Type, ?CRLF,
-            "Content-Length: 0" ,?CRLF, ?CRLF
+            "USN: uuid:", ssdp_root_device:get_uuid(), ?CRLF,
+            "CACHE-CONTROL: max-age=1800", ?CRLF,
+            "SERVER: NEMO", ?CRLF, ?CRLF
             ],
     %error_logger:info_msg("MSEARCH RESPONSE: ~p~n", [lists:append(List)]),
     lists:append(List).
