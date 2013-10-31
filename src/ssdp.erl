@@ -81,10 +81,10 @@ is_msearch(Message) -> ssdp_util:startsWith(Message, ?M_SEARCH).
 
 is_notify(Message) ->  ssdp_util:startsWith(Message, ?NOTIFY).
 
-handle_notify(IP, Message, State) ->
+handle_notify(IP, Message, State) -> % do nothing for now
     %error_logger:info_msg("~n~nNOTIFY From IP: ~p~n Message: ~p~n", [Ip, Message]),
-    NotifyTree = notify_msg_to_update_tree(IP, Message),
-    hub:update([ssdp,alive], NotifyTree, []),
+    %NotifyTree = notify_msg_to_update_tree(IP, Message),
+    %hub:update([ssdp,alive], NotifyTree, []),
     {ok, State}.
 
 handle_msearch(Ip, InPort, InMessage, State) ->
