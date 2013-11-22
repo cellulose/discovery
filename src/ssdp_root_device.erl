@@ -199,7 +199,7 @@ get_service(Services, ST) ->
 
 createRootdevice() ->
     [ {usn, USN} ] = ets:lookup(config, usn),
-    #rootdevice{uuid=usn, 
+    #rootdevice{uuid=binary_to_list(USN), 
 		os=ssdp_os_info:get_os_description(),
 		ip=ssdp_os_info:get_active_ip(), port=8080,
 		services=[ssdp_root_device]}.	
