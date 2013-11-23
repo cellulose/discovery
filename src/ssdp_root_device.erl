@@ -201,5 +201,5 @@ createRootdevice() ->
     [ {usn, USN} ] = ets:lookup(config, usn),
     #rootdevice{uuid=binary_to_list(USN), 
 		os=ssdp_os_info:get_os_description(),
-		ip=ssdp_os_info:get_active_ip(), port=8080,
+		ip=ssdp_os_info:get_active_ip(), port=80,
 		services=[ssdp_root_device]}.	
