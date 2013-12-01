@@ -197,8 +197,15 @@ get_service(Services, ST) ->
 		[Service] -> {ok, Service}
 	end.
 
+
+%% REVIEW BUGBUG 
+%%
+%% the function below hardcodes port 80 for SSDP, which is fine for the production
+%% unit but completely wrong -- it should get the port from ets like the USN.
+
 createRootdevice() ->
-	#rootdevice{uuid=ssdp_util:v4_as_string(), os=ssdp_os_info:get_os_description(),
-				ip=ssdp_os_info:get_active_ip(), port=80,
-				services=[ssdp_root_device]}.	
-				
+    [ {usn, USN} ] = ets:lookup(config, usn),
+    #rootdevice{uuid=binary_to_list(USN), 
+		os=ssdp_os_info:get_os_description(),
+		ip=ssdp_os_info:get_active_ip(), port=80,
+		services=[ssdp_root_device]}.	

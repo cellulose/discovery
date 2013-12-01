@@ -37,6 +37,7 @@ start_link() ->
 init([]) ->
     error_logger:info_msg("Starting SSDP"),
     Socket = open_multicast_socket(),
+    [send_is_alive(Socket, get_message_is_alive(X)) || X <- ssdp_root_device:get_services()],
     start_timer(),
     {ok, #state{socket=Socket}}.
 
