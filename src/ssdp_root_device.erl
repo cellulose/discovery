@@ -87,8 +87,7 @@ get_service_type() ->
     "urn:rosepointnav-com:service:nemo:1".
 %%	"upnp:rootdevice".
     
-get_uri() ->
-	"/upnp/device.xml".
+get_uri() ->"/nemo/".
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
