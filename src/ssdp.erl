@@ -50,7 +50,9 @@ handle_info({udp, _Socket, IPtuple, InPortNo, Packet}, State) ->
         true -> handle_msearch(IPtuple, InPortNo, Packet, State);
         false -> case is_notify(Packet) of
             true -> handle_notify(IPtuple, Packet, State);
-            false -> {ok, State}  % not notify, not msearch or notify
+            false -> % not msearch or notify, so forward to Elixir IP 
+                'Elixir.Echo.Ip':ssdp_not_search_or_notify(Packet, IPtuple, InPortNo),
+                {ok, State}
              %% error_logger:info_msg("I don't understand the Message : ~p~n", [Packet]);
         end     
     end,        
