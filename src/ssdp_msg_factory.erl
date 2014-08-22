@@ -44,7 +44,7 @@ build_bye_bye(NT) ->
     % error_logger:info_msg("~p~n", [lists:append(List)]),
     lists:append(List).
 
-build_msearch_response(ST, Uri, Service_Type) ->
+build_msearch_response(ST, Uri, _Service_Type) ->
     List = ["HTTP/1.1 200 OK", ?CRLF,
             "CACHE-CONTROL: max-age = 1200", ?CRLF,
 %           "DATE: ", get_date(), ?CRLF,

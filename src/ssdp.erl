@@ -84,7 +84,7 @@ is_msearch(Message) -> ssdp_util:startsWith(Message, ?M_SEARCH).
 
 is_notify(Message) ->  ssdp_util:startsWith(Message, ?NOTIFY).
 
-handle_notify(IP, Message, State) -> % do nothing for now
+handle_notify(_IP, _Message, State) -> % do nothing for now
     %error_logger:info_msg("~n~nNOTIFY From IP: ~p~n Message: ~p~n", [Ip, Message]),
     %NotifyTree = notify_msg_to_update_tree(IP, Message),
     %hub:update([ssdp,alive], NotifyTree, []),
@@ -149,33 +149,33 @@ test_notify_msg() ->
     "NOTIFY * HTTP/1.1\r\nHOST: 239.255.255.250:1900\r\nNT: upnp:rootdevice\r\nNTS: ssdp:alive \r\nLOCATION: http://127.0.0.1:5001/description/fetch\r\nUSN : advertisement:uuid:718ec2f0-f023-4b91-bc88-415c60186c82\r\nCACHE-CONTROL: max-age=1800\r\nServer : Mac OS X 10.8.2 UPnP/1.0 NEMO/0.1\r\n".
 
 
-%% Takes a key:value form line, and turns it into a tuple
-%% Used for cracking various config and http headers
-line_to_prop(Line) ->
-    L = re:split(Line, "\\W*:\\W*", [{parts, 2}, {return, list}]),
-    case length(L) of
-        2 -> { to_lowercase_atom(hd(L)), erlang:list_to_binary(tl(L))    };
-        _ -> nil
-    end.
+%% %% Takes a key:value form line, and turns it into a tuple
+%% %% Used for cracking various config and http headers
+%% line_to_prop(Line) ->
+%%     L = re:split(Line, "\\W*:\\W*", [{parts, 2}, {return, list}]),
+%%     case length(L) of
+%%         2 -> { to_lowercase_atom(hd(L)), erlang:list_to_binary(tl(L))    };
+%%         _ -> nil
+%%     end.
 
-to_lowercase_atom(Str) ->
-    erlang:list_to_atom(inet_db:tolower(Str)).
+%% to_lowercase_atom(Str) ->
+%%     erlang:list_to_atom(inet_db:tolower(Str)).
 
-%% break text into a list of lines
-text_to_lines(Text) ->
-    string:tokens(Text, "\r\n").
+%% %% break text into a list of lines
+%% text_to_lines(Text) ->
+%%     string:tokens(Text, "\r\n").
 
-%% turns foo:whatever style lines into flat proplists,
-%% discarding anything that doesn't fit that format.
-lines_to_props(Lines) ->
-    RawProplist = [ line_to_prop(Line) || Line <- Lines ],
-    proplists:delete(nil, RawProplist).
+%% %% turns foo:whatever style lines into flat proplists,
+%% %% discarding anything that doesn't fit that format.
+%% lines_to_props(Lines) ->
+%%     RawProplist = [ line_to_prop(Line) || Line <- Lines ],
+%%     proplists:delete(nil, RawProplist).
 
-%% returns a tuple/structure for a notify message, suitable for passing
-%% to hub:update
-notify_msg_to_update_tree(IP, Message) ->
-    Lines = text_to_lines(Message),
-    Pl1 = lines_to_props(tl(Lines)),
-    Pl2 = lists:append(Pl1, [{ip, erlang:list_to_binary(inet_parse:ntoa(IP))}]),
-    Usn = proplists:get_value(usn, Pl2),
-    [{Usn, Pl2}].
+%% %% returns a tuple/structure for a notify message, suitable for passing
+%% %% to hub:update
+%% notify_msg_to_update_tree(IP, Message) ->
+%%     Lines = text_to_lines(Message),
+%%     Pl1 = lines_to_props(tl(Lines)),
+%%     Pl2 = lists:append(Pl1, [{ip, erlang:list_to_binary(inet_parse:ntoa(IP))}]),
+%%     Usn = proplists:get_value(usn, Pl2),
+%%     [{Usn, Pl2}].
