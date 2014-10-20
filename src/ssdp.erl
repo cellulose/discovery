@@ -35,7 +35,6 @@ start_link() ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
 
 init([]) ->
-    io.format("Starting SSDP"),
     Socket = open_multicast_socket(),
     [send_is_alive(Socket, get_message_is_alive(X)) || X <- ssdp_root_device:get_services()],
     start_timer(),
