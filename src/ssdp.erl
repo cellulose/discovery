@@ -20,7 +20,7 @@
 
 %% gen_server callbacks
 
--record(state, {socket, discovered}).
+-record(state, {socket, discovered, announce_count}).
 
 -define(M_SEARCH, "M-SEARCH").
 -define(NOTIFY, "NOTIFY").
@@ -37,8 +37,8 @@ start_link() ->
 init([]) ->
     Socket = open_multicast_socket(),
     [send_is_alive(Socket, get_message_is_alive(X)) || X <- ssdp_root_device:get_services()],
-    start_timer(),
-    {ok, #state{socket=Socket}}.
+    start_timer(timer_interval(0)),
+    {ok, #state{socket=Socket, announce_count=1}}.
 
 handle_call(_Request, _From, State) -> {reply, ok, State}.
 handle_cast(_Msg, State) -> {noreply, State}.
@@ -59,8 +59,9 @@ handle_info({udp, _Socket, IPtuple, InPortNo, Packet}, State) ->
 
 handle_info(timeout, State) ->
     [send_is_alive(State#state.socket, get_message_is_alive(X)) || X <- ssdp_root_device:get_services()],
-    start_timer(),
-    {noreply, State}.
+    AC=State#state.announce_count,
+    start_timer(timer_interval(AC)),
+    {noreply, State#state{announce_count=(AC+1)}}.
 
 terminate(Reason, State) ->
     error_logger:info_msg("stopping ssdp with Reason : ", [Reason]),
@@ -131,9 +132,13 @@ send_byebye(Socket, Message) ->
 
 %% reset timer for every 30 seconds.
 %% used to do: erlang:send_after(get_time() * 60 * 1000, self(), timeout).
-start_timer() ->
-    erlang:send_after(30*1000, self(), timeout).
+start_timer(Interval) ->
+    erlang:send_after(Interval, self(), timeout).
 
+timer_interval(N) when N > 10 -> 30000;
+timer_interval(N) when N > 3 -> 5000;
+timer_interval(_N) -> 1000.
+    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 get_st_with_space_test() ->
