@@ -3,7 +3,7 @@ defmodule Discovery.Mixfile do
 
   def project do
     [app: :discovery,
-     version: "0.0.1",
+     version: version,
      elixir: "~> 1.0",
      deps: deps]
   end
@@ -26,5 +26,12 @@ defmodule Discovery.Mixfile do
   # Type `mix help deps` for more examples and options
   defp deps do
     []
+  end
+
+  defp version do
+    case File.read("VERSION") do
+      {:ok, ver} -> String.strip ver
+      _ -> "0.0.0-dev"
+    end
   end
 end
