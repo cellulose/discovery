@@ -82,18 +82,18 @@ get_os_info() ->
 
 get_ip_port() ->
 	gen_server:call(?MODULE, {get_ip_port}).
+
 get_nt() ->
-    "urn:rosepointnav-com:service:nemo:1".
-%%	?UPNP_ROOTDEVICE.
+  gen_server:call(?MODULE, {get_nt}).
+
 get_st() ->
 	get_nt().
 
 get_service_type() ->
-%%  "urn:schemas-upnp-org:device:InternetGatewayDevice:1".
-    "urn:rosepointnav-com:service:nemo:1".
-%%	"upnp:rootdevice".
+  gen_server:call(?MODULE, {get_service_type}).
 
-get_uri() ->"/nemo/".
+get_uri() ->
+  gen_server:call(?MODULE, {get_uri}).
 
 %% --------------------------------------------------------------------
 %% Function: handle_call/3
@@ -125,8 +125,15 @@ handle_call({get_uuid}, _From, State) ->
 	{reply, get_uuid(State#state.rootdevice), State};
 handle_call({get_ip_port}, _From, State) ->
 	{reply, get_ip_port(State#state.rootdevice), State};
+handle_call({get_service_type}, _From, State) ->
+  {reply, get_service_type(State#state.rootdevice), State};
+handle_call({get_nt}, _From, State) ->
+  {reply, get_nt(State#state.rootdevice), State};
+handle_call({get_uri}, _From, State) ->
+  {reply, get_uri(State#state.rootdevice), State};
 handle_call({get_service, Search_Type}, _From, State) ->
 	{reply, get_service(get_services(State#state.rootdevice), Search_Type), State}.
+
 
 %% --------------------------------------------------------------------
 %% Function: handle_cast/2
@@ -202,10 +209,22 @@ get_service(Services, ST) ->
 		[Service] -> {ok, Service}
 	end.
 
+get_service_type(#rootdevice{uuid = Uuid}) ->
+  Uuid.
+
+get_nt(#rootdevice{uuid = Uuid}) ->
+  Uuid.
+
+get_uri(#rootdevice{uri = Uri}) ->
+  Uri.
+
 createRootdevice(Args) ->
     USN = proplists:get_value(usn, Args, <<"usn:cellulose-io:service:cell:1">>),
     Port = proplists:get_value(port, Args, 80),
+    Uri = proplists:get_value(uri, Args, <<"jrtp">>),
+    io:format("usn: ~p, port: ~p, uri: ~p", [USN, Port, Uri]),
     #rootdevice{uuid=binary_to_list(USN),
 		os=ssdp_os_info:get_os_description(),
 		ip=ssdp_os_info:get_active_ip(), port=Port,
-		services=[ssdp_root_device]}.
+		services=[ssdp_root_device],
+    uri=binary_to_list(Uri)}.

@@ -1,14 +1,14 @@
 %%
-%% SSDP 
+%% SSDP
 %%
 
--define(UPNP, "UPnP/1.0 NEMO/0.1").
+-define(UPNP, "UPnP/1.0 CELL/0.1").
 
 -define(MULTICAST_GROUP, {239,255,255,250}).
 -define(MULTICAST_PORT, 1900).
 
 -define(SOCKET_OPTIONS, [
-	  {broadcast, true}, 
+	  {broadcast, true},
 	  {reuseaddr, true},
 	  {multicast_loop, false},   % was true
 	  {multicast_if, ssdp_os_info:get_ip()},
@@ -18,8 +18,8 @@
 
 %% root device
 -record(rootdevice, {
-   uuid, wirelessmode, port, 
-   descriptionuri="/services", services=[], os, ip, 
+   uuid, wirelessmode, port, uri,
+   descriptionuri="/services", services=[], os, ip,
    rootdevice="upnp:rootdevice", elementname="device" }).
 
 -record(result, {container, item}).

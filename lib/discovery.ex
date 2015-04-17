@@ -6,6 +6,7 @@ defmodule Discovery do
 
   @default_usn Application.get_env :discovery, :usn, "usn:cellulose-io:service:cell:1"
   @default_port Application.get_env :discovery, :port, 80
+  @default_uri Application.get_env :discovery, :uri, "/jrtp/"
 
   def start(args \\ []), do: :ssdp.start(merge_args(args))
 
@@ -16,6 +17,7 @@ defmodule Discovery do
   defp merge_args(args) do
     usn = Dict.get(args, :usn, @default_usn)
     port = Dict.get(args, :port, @default_port)
-    [usn: usn, port: port]
+    uri = Dict.get(args, :uri, @default_uri)
+    [usn: usn, port: port, uri: uri]
   end
 end
