@@ -8,11 +8,11 @@
 %%
 %% Exported Functions
 %%
--export([get_ip/0, get_port/0, get_services/0, get_description_uri/0, get_uuid/0, get_os/0, createRootdevice/0]).
+-export([get_ip/0, get_port/0, get_services/0, get_description_uri/0, get_uuid/0, get_os/0, createRootdevice/1]).
 -export([get_ip_as_string/0, get_ip_port/0, get_os_info/0, get_root_device/0, get_service/1]).
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([start_link/0, start/0]).
+-export([start_link/0, start_link/1, start/0, start/1]).
 -export([get_nt/0, get_st/0, get_uri/0, get_service_type/0]).
 
 -record(state, {rootdevice}).
@@ -26,10 +26,16 @@
 %% Description: Starts the server
 %%--------------------------------------------------------------------
 start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+  start_link([]).
+
+start_link(Args) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
 start() ->
-    gen_server:start({local, ?MODULE}, ?MODULE, [], []).
+  start([]).
+
+start(Args) ->
+    gen_server:start({local, ?MODULE}, ?MODULE, Args, []).
 
 %% --------------------------------------------------------------------
 %% Function: init/1
@@ -39,17 +45,17 @@ start() ->
 %%          ignore               |
 %%          {stop, Reason}
 %% --------------------------------------------------------------------
-init([]) ->
-    {ok, #state{rootdevice=createRootdevice()}}.
+init(Args) ->
+    {ok, #state{rootdevice=createRootdevice(Args)}}.
 %%
 %% API Functions
 %%
 get_root_device() ->
-	gen_server:call(?MODULE, {get_root_device}). 
+	gen_server:call(?MODULE, {get_root_device}).
 
 get_ip() ->
-	gen_server:call(?MODULE, {get_ip}). 
-	
+	gen_server:call(?MODULE, {get_ip}).
+
 get_ip_as_string() ->
 	gen_server:call(?MODULE, {get_ip_as_string}).
 
@@ -61,7 +67,7 @@ get_services() ->
 
 get_service(Search_Type) ->
 	gen_server:call(?MODULE, {get_service, Search_Type}).
-	
+
 get_description_uri() ->
 	gen_server:call(?MODULE, {get_description_uri}).
 
@@ -86,7 +92,7 @@ get_service_type() ->
 %%  "urn:schemas-upnp-org:device:InternetGatewayDevice:1".
     "urn:rosepointnav-com:service:nemo:1".
 %%	"upnp:rootdevice".
-    
+
 get_uri() ->"/nemo/".
 
 %% --------------------------------------------------------------------
@@ -161,7 +167,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %%
 %% Local Functions
-%%	
+%%
 get_ip(#rootdevice{ip = Ip})->
 	Ip.
 
@@ -196,15 +202,11 @@ get_service(Services, ST) ->
 		[Service] -> {ok, Service}
 	end.
 
-
-%% REVIEW BUGBUG 
-%%
-%% the function below hardcodes port 80 for SSDP, which is fine for the production
-%% unit but completely wrong -- it should get the port from ets like the USN.
-
-createRootdevice() ->
-    [ {usn, USN} ] = ets:lookup(config, usn),
-    #rootdevice{uuid=binary_to_list(USN), 
+createRootdevice(Args) ->
+    USN = proplists:get_value(usn, Args, <<"usn:cellulose-io:service:cell:1">>),
+    Port = proplists:get_value(port, Args, 80),
+    io:format("usn: ~p, port: ~p\n\n", [USN, Port]),
+    #rootdevice{uuid=binary_to_list(USN),
 		os=ssdp_os_info:get_os_description(),
-		ip=ssdp_os_info:get_active_ip(), port=80,
-		services=[ssdp_root_device]}.	
+		ip=ssdp_os_info:get_active_ip(), port=Port,
+		services=[ssdp_root_device]}.

@@ -9,14 +9,15 @@
 
 -behavior(gen_server).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2,
-     code_change/3, start_link/0, start/0]).
+     code_change/3, start_link/1, start/1]).
+-export([start_all/1]).
+
+-export([tokenize/1, test_notify_msg/0]).
+
 
 -include_lib("eunit/include/eunit.hrl").
 
 -include("../include/upnp.hrl").
--export([start_all/0]).
-
--export([tokenize/1, test_notify_msg/0]).
 
 %% gen_server callbacks
 
@@ -25,16 +26,16 @@
 -define(M_SEARCH, "M-SEARCH").
 -define(NOTIFY, "NOTIFY").
 
-start_all() ->
-    ssdp_root_device:start(),
-    start().
+start_all(Args) ->
+    ssdp_root_device:start(Args),
+    start(Args).
 
-start() ->  start_link().
+start(Args) ->  start_link(Args).
 
-start_link() ->
-    gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
+start_link(Args) ->
+    gen_server:start_link({local, ?MODULE}, ?MODULE, Args, []).
 
-init([]) ->
+init(Args) ->
     Socket = open_multicast_socket(),
     [send_is_alive(Socket, get_message_is_alive(X)) || X <- ssdp_root_device:get_services()],
     start_timer(timer_interval(0)),
@@ -138,7 +139,7 @@ start_timer(Interval) ->
 timer_interval(N) when N > 10 -> 30000;
 timer_interval(N) when N > 3 -> 5000;
 timer_interval(_N) -> 1000.
-    
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% TESTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 get_st_with_space_test() ->
