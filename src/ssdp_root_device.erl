@@ -205,7 +205,6 @@ get_service(Services, ST) ->
 createRootdevice(Args) ->
     USN = proplists:get_value(usn, Args, <<"usn:cellulose-io:service:cell:1">>),
     Port = proplists:get_value(port, Args, 80),
-    io:format("usn: ~p, port: ~p\n\n", [USN, Port]),
     #rootdevice{uuid=binary_to_list(USN),
 		os=ssdp_os_info:get_os_description(),
 		ip=ssdp_os_info:get_active_ip(), port=Port,
