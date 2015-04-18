@@ -13,7 +13,7 @@
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -export([start_link/0, start_link/1, start/0, start/1]).
--export([get_nt/0, get_st/0, get_uri/0, get_service_type/0]).
+-export([get_nt/0, get_st/0, get_st/1, get_uri/0, get_service_type/0]).
 
 -record(state, {rootdevice}).
 
@@ -87,7 +87,10 @@ get_nt() ->
   gen_server:call(?MODULE, {get_nt}).
 
 get_st() ->
-	get_nt().
+  get_nt().
+
+get_st(State) ->
+	get_nt(State#state.rootdevice).
 
 get_service_type() ->
   gen_server:call(?MODULE, {get_service_type}).
@@ -132,7 +135,7 @@ handle_call({get_nt}, _From, State) ->
 handle_call({get_uri}, _From, State) ->
   {reply, get_uri(State#state.rootdevice), State};
 handle_call({get_service, Search_Type}, _From, State) ->
-	{reply, get_service(get_services(State#state.rootdevice), Search_Type), State}.
+	{reply, get_service(get_services(State#state.rootdevice), Search_Type, State), State}.
 
 
 %% --------------------------------------------------------------------
@@ -202,9 +205,8 @@ get_os_info(#rootdevice{os = Os}) ->
 get_ip_port(#rootdevice{ip = Ip, port = Port}) ->
 	ssdp_os_info:get_ip_as_string(Ip) ++ ":" ++ integer_to_list(Port).
 
-get_service(Services, ST) ->
-	% error_logger:info_msg("get_service ~p : in : ~p~n", [ST, Services]),
-	case [X || X <- Services, string:equal(ST, X:get_st())] of
+get_service(Services, ST, State) ->
+	case [X || X <- Services, string:equal(ST, X:get_st(State))] of
 		[] -> {error, "no service found"};
 		[Service] -> {ok, Service}
 	end.
@@ -219,10 +221,9 @@ get_uri(#rootdevice{uri = Uri}) ->
   Uri.
 
 createRootdevice(Args) ->
-    USN = proplists:get_value(usn, Args, <<"usn:cellulose-io:service:cell:1">>),
-    Port = proplists:get_value(port, Args, 80),
-    Uri = proplists:get_value(uri, Args, <<"jrtp">>),
-    io:format("usn: ~p, port: ~p, uri: ~p", [USN, Port, Uri]),
+    USN = proplists:get_value(usn, Args),
+    Port = proplists:get_value(port, Args),
+    Uri = proplists:get_value(uri, Args),
     #rootdevice{uuid=binary_to_list(USN),
 		os=ssdp_os_info:get_os_description(),
 		ip=ssdp_os_info:get_active_ip(), port=Port,

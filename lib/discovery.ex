@@ -4,7 +4,7 @@ defmodule Discovery do
   :ssdp and :ssdp_root_device
   """
 
-  @default_usn Application.get_env :discovery, :usn, "usn:cellulose-io:service:cell:1"
+  @default_usn Application.get_env :discovery, :usn, "urn:cellulose-io:service:cell:1"
   @default_port Application.get_env :discovery, :port, 80
   @default_uri Application.get_env :discovery, :uri, "/jrtp/"
 

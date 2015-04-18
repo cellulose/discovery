@@ -46,10 +46,10 @@ get_all(mac) ->
 get_all(unix) ->
     os:cmd('uname -a').
 
-get_type(mac) -> 
+get_type(mac) ->
     Type = os:cmd('sw_vers -productName'),
     string:strip(Type, right, 10).
-    
+
 get_version(mac) ->
     Version = os:cmd('sw_vers -productVersion'),
     string:strip(Version, right, 10);
@@ -65,7 +65,7 @@ get_os_description(mac) ->
             " ",
             get_version(mac),
             " ",
-            get_upnp()      
+            get_upnp()
             ],
     lists:append(List);
 
@@ -87,12 +87,14 @@ get_active_ip() ->
 
 get_active_ip(If_list) ->
     get_ip([A || A <- If_list, inet:ifget(A,[addr]) /= {ok,[{addr,{127,0,0,1}}]}, filter_networkcard(list_to_binary(A))]).
-    
+
 filter_networkcard(<<"vnic", _R/binary>>) ->
     false;
 filter_networkcard(<<"vmnet", _R/binary>>) ->
     false;
 filter_networkcard(<<"eth0", _R/binary>>) ->
+    true;
+filter_networkcard(<<"en0", _R/binary>>) ->
     true;
 filter_networkcard(_) ->
     false.
